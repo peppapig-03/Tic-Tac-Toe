@@ -31,7 +31,10 @@ const gameboard = (()=>{
         } else if (boxCheck(row,column)=="Filled"){
             console.log("Box is Filled")
             return false
-        } else {
+        } else if (moderator.endGameRetrieve()==true){
+            console.log("Game has ended")
+            return false
+        } else{
             console.log(`Player ${id} chooses box on row ${row} and column ${column}`)
             currentBoard[row-1][column-1]=id
             return true
@@ -92,14 +95,22 @@ const playerBase = (()=>{
 })()
 const moderator=(()=>{
     let gameTurn=1
+    let endGame=false
     const nextTurn = ()=>{
-        if (gameTurn<=9){
+        if ((gameTurn<9)&&(gameboard.victoryCheck()==0)){
             gameTurn++
             let titleBox=document.querySelector(".title")
             titleBox.textContent=`Turn ${gameTurn}, Player ${playerTurn()} plays`
+        } else if((gameTurn>=9)&&(gameboard.victoryCheck()==0)){
+            endGame=true
+            let titleBox=document.querySelector(".title")
+            titleBox.textContent="Tie has occured"
         } else{
-            return
+            endGame=true
         }
+    }
+    const endGameRetrieve=()=>{
+        return endGame
     }
     const retrieveTurnCount=()=>{
         return gameTurn
@@ -114,37 +125,12 @@ const moderator=(()=>{
     const oneTurn=(playerNumber,rowNo,colNo)=>{
         if (gameboard.playerMove(playerNumber,rowNo,colNo)==true){
             nextTurn()
+            console.log(endGameRetrieve())
             return true
         }
     return false
     }
-    const gameFlow=()=>{
-        /*while (gameTurn<=9){
-            let i=1+Math.floor(3*Math.random())
-            let j=1+Math.floor(3*Math.random())
-            console.log(`Turn ${gameTurn}`)
-            console.log(gameboard.getCurrentBoard())
-            console.log(i,j)
-            oneTurn(playerTurn(),i,j)
-            if (gameTurn>=5){
-                let victor=gameboard.victoryCheck()
-                if (victor!=0){
-                    console.log(gameboard.getCurrentBoard())
-                    console.log(`Player ${victor} has won!`)
-                    return victor
-                }
-            }
-        }
-    console.log(gameboard.getCurrentBoard())
-    console.log(`Tie`)
-    return 0*/
-        oneTurn(playerTurn(),f,1)
-    }
-    return {retrieveTurnCount,gameFlow,playerTurn,oneTurn}
-})()
-const title=(()=>{
-    let titleBox=document.querySelector(".title")
-    titleBox.textContent=`Turn ${moderator.retrieveTurnCount()}, Player ${moderator.playerTurn()} plays`
+    return {retrieveTurnCount,playerTurn,oneTurn,endGameRetrieve}
 })()
 const gridDisplay=(()=>{
     let titleBox=document.querySelector(".title")
@@ -161,7 +147,7 @@ const gridDisplay=(()=>{
                     if (turnStatus==true){
                         button.textContent=currentPlayer
                     }
-                    if (moderator.retrieveTurnCount()>5){
+                    if (moderator.retrieveTurnCount()>4){
                         let victory=gameboard.victoryCheck()
                         if (victory!=0){
                             const title=document.querySelector(".title")
@@ -179,5 +165,4 @@ const gridDisplay=(()=>{
 
 
 console.log(playerBase.playerList)
-/*moderator.gameFlow()*/
 gridDisplay.spawn()
