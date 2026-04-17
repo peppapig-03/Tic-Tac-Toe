@@ -95,6 +95,8 @@ const moderator=(()=>{
     const nextTurn = ()=>{
         if (gameTurn<=9){
             gameTurn++
+            let titleBox=document.querySelector(".title")
+            titleBox.textContent=`Turn ${gameTurn}, Player ${playerTurn()} plays`
         } else{
             return
         }
@@ -112,10 +114,12 @@ const moderator=(()=>{
     const oneTurn=(playerNumber,rowNo,colNo)=>{
         if (gameboard.playerMove(playerNumber,rowNo,colNo)==true){
             nextTurn()
+            return true
         }
+    return false
     }
     const gameFlow=()=>{
-        while (gameTurn<=9){
+        /*while (gameTurn<=9){
             let i=1+Math.floor(3*Math.random())
             let j=1+Math.floor(3*Math.random())
             console.log(`Turn ${gameTurn}`)
@@ -133,12 +137,47 @@ const moderator=(()=>{
         }
     console.log(gameboard.getCurrentBoard())
     console.log(`Tie`)
-    return 0
+    return 0*/
+        oneTurn(playerTurn(),f,1)
     }
-    return {retrieveTurnCount,gameFlow}
+    return {retrieveTurnCount,gameFlow,playerTurn,oneTurn}
+})()
+const title=(()=>{
+    let titleBox=document.querySelector(".title")
+    titleBox.textContent=`Turn ${moderator.retrieveTurnCount()}, Player ${moderator.playerTurn()} plays`
+})()
+const gridDisplay=(()=>{
+    let titleBox=document.querySelector(".title")
+    titleBox.textContent=`Turn 1, Player 1 plays`
+    let grid=document.querySelector(".grid")
+    const spawn=()=>{
+        for(let rowCount=1;rowCount<4;rowCount++){
+            for(let colCount=1;colCount<4;colCount++){
+                const button=document.createElement("button")
+                button.classList.add("numberBox")
+                button.addEventListener("click",(event)=>{
+                    let currentPlayer=moderator.playerTurn()
+                    let turnStatus=moderator.oneTurn(moderator.playerTurn(),rowCount,colCount)
+                    if (turnStatus==true){
+                        button.textContent=currentPlayer
+                    }
+                    if (moderator.retrieveTurnCount()>5){
+                        let victory=gameboard.victoryCheck()
+                        if (victory!=0){
+                            const title=document.querySelector(".title")
+                            title.textContent=`Player ${victory} has won!`
+                        }
+                    }
+                    
+                })
+            grid.appendChild(button)
+            }}
+    }
+    return {spawn}
+
 })()
 
 
-
 console.log(playerBase.playerList)
-moderator.gameFlow()
+/*moderator.gameFlow()*/
+gridDisplay.spawn()
